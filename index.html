@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VPECom Store</title>
     
+    <link rel="preconnect" href="https://raw.githubusercontent.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
@@ -18,15 +22,25 @@
             --grey: #878787;
             --bg: #f1f3f6;
             --white: #ffffff;
+            --card-border: #e0e0e0;
         }
 
         html, body { 
             width: 100%; 
-            min-height: 100vh; 
+            height: 100%; 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg); 
             -webkit-tap-highlight-color: transparent; 
             overflow-x: hidden; 
+            margin: 0;
+        }
+
+        /* PAGE WRAPPER (Sticky Footer Logic) */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; 
+            width: 100%;
         }
 
         /* HEADER */
@@ -65,7 +79,7 @@
         }
         .search-box input { border: none; outline: none; width: 100%; font-size: 14px; margin-left: 10px; color: #333; background: transparent; }
 
-        /* BANNER & CAT STRIP */
+        /* BANNER */
         #offer-banner { 
             background: linear-gradient(90deg, #ff9f00 0%, #ff6f00 100%); 
             color: white; 
@@ -153,17 +167,9 @@
             transition: opacity 0.3s ease;
         }
         
-        .banner-slider-container:hover .banner-nav {
-            opacity: 1;
-        }
-        
-        .banner-prev {
-            left: 10px;
-        }
-        
-        .banner-next {
-            right: 10px;
-        }
+        .banner-slider-container:hover .banner-nav { opacity: 1; }
+        .banner-prev { left: 10px; }
+        .banner-next { right: 10px; }
         
         .cat-strip { 
             background: white; 
@@ -181,9 +187,7 @@
             -webkit-overflow-scrolling: touch;
         }
         
-        .cat-strip::-webkit-scrollbar {
-            display: none;
-        }
+        .cat-strip::-webkit-scrollbar { display: none; }
         
         .cat-pill { 
             background: #f0f5ff; 
@@ -219,79 +223,38 @@
         .user-icon { font-size: 24px; background: white; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .menu-group { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
         .menu-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--dark); font-size: 15px; cursor: pointer; }
+        a.menu-item { text-decoration: none; }
+        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; display: none; }
         .overlay.active { display: block; }
 
-        /* MAIN CONTAINER */
-        .main-content {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            min-height: calc(100vh - 120px);
-        }
-        
+        /* CONTAINER FIX */
         .container { 
             padding: 8px; 
-            flex: 1;
             width: 100%;
             position: relative; 
+            padding-bottom: 20px;
+            flex: 1; 
         }
         
-        /* PRODUCT GRID - RESPONSIVE FIX */
+        /* GRID */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px; 
             align-items: stretch;
             width: 100%;
             margin: 0 auto;
         }
         
-        /* Tablet */
-        @media(min-width: 480px) { 
-            .product-grid { 
-                grid-template-columns: repeat(3, 1fr); 
-            }
-        }
-        
-        /* Small Desktop */
-        @media(min-width: 768px) { 
-            .product-grid { 
-                grid-template-columns: repeat(4, 1fr); 
-                gap: 15px; 
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            .banner-slider-container {
-                height: 250px;
-                max-width: 1200px;
-                margin: 0 auto 8px;
-            }
-            .cat-strip {
-                max-width: 1200px;
-                margin: 0 auto 8px;
-            }
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-        }
-        
-        /* Large Desktop */
-        @media(min-width: 1024px) { 
-            .product-grid { 
-                grid-template-columns: repeat(5, 1fr); 
-            }
-        }
-
         /* CARD */
         .card { 
             background: white; 
-            border-radius: 8px; 
+            border-radius: 6px; 
             overflow: hidden; 
-            border: 1px solid #e0e0e0; 
+            border: 1px solid var(--card-border); 
             position: relative; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
             display: flex; 
             flex-direction: column; 
             width: 100%; 
@@ -301,130 +264,106 @@
         
         .card:active { transform: scale(0.98); }
 
-        .card-img { 
-            width: 100%; 
-            height: 160px; 
-            display: block; 
-            background: #f9f9f9; 
-            object-fit: cover; 
+        /* IMAGE CONTAINER (16:9) */
+        .image-container {
+            width: 100%;
+            background: white;
+            display: block;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16 / 9; 
         }
         
+        .card-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center;
+            display: block;
+        }
+        
+        /* DETAILS */
         .details { 
             padding: 10px; 
             flex: 1;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            min-height: 75px; 
         }
         
         .title { 
             font-size: 13px; 
-            color: #444; 
+            color: #212121; 
             font-weight: 500; 
-            line-height: 1.4; 
-            margin-bottom: 5px; 
+            line-height: 1.3; 
+            margin-bottom: 6px; 
             display: -webkit-box; 
             -webkit-line-clamp: 2; 
             -webkit-box-orient: vertical; 
             overflow: hidden; 
-            flex: 1;
         }
         
         .price-row { 
             display: flex; 
-            align-items: center; 
+            align-items: baseline; 
             gap: 6px; 
             flex-wrap: wrap; 
-            margin-top: auto;
         }
         
-        .price { 
-            font-size: 15px; 
-            font-weight: 700; 
-            color: #212121; 
-        }
-        
-        .mrp { 
-            font-size: 11px; 
-            color: var(--grey); 
-            text-decoration: line-through; 
-        }
-        
-        .off { 
-            font-size: 11px; 
-            color: #388e3c; 
-            font-weight: 700; 
-        }
-        
-        /* STATUS */
-        .status-container {
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-            width: 100%; 
-            height: 50vh; 
-            text-align: center; 
-            color: #666; 
-            grid-column: 1 / -1; 
-        }
-        
-        .no-result i { 
-            font-size: 40px; 
-            color: #ddd; 
-            margin-bottom: 15px; 
-        }
-        
-        .fa-spinner { 
-            color: var(--primary); 
-            font-size: 30px; 
-            margin-bottom: 15px; 
-        }
-        
-        /* No Banners Message */
-        .no-banners {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 120px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
-            margin-bottom: 8px;
+        .price { font-size: 15px; font-weight: 600; color: #212121; }
+        .mrp { font-size: 11px; color: var(--grey); text-decoration: line-through; }
+        .off { font-size: 11px; color: #388e3c; font-weight: 700; }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--primary);
             color: white;
-            font-weight: 600;
-            font-size: 16px;
             text-align: center;
             padding: 20px;
+            font-size: 13px;
             width: 100%;
+            font-weight: 500;
+            margin-top: auto; 
         }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 767px) {
+            .product-grid { gap: 6px; }
+            .details { padding: 8px; }
+        }
+        @media(min-width: 480px) { 
+            .product-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        }
+        @media(min-width: 768px) { 
+            .product-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1200px; margin: 0 auto; }
+            .banner-slider-container { height: 250px; max-width: 1200px; margin: 0 auto 8px; }
+            .cat-strip { max-width: 1200px; margin: 0 auto 8px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #d0d0d0; }
+            .card:hover .card-img { transform: scale(1.05); transition: transform 0.4s ease; }
+        }
+        @media(min-width: 1024px) { 
+            .product-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* UTILS */
+        .status-container {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 100%; height: 50vh; text-align: center; color: #666; grid-column: 1 / -1; 
+        }
+        .no-result i { font-size: 40px; color: #ddd; margin-bottom: 15px; }
+        .fa-spinner { color: var(--primary); font-size: 30px; margin-bottom: 15px; }
         
-        @media(min-width: 768px) {
-            .no-banners {
-                height: 200px;
-                font-size: 20px;
-                max-width: 1200px;
-                margin: 0 auto 8px;
-            }
+        .no-banners {
+            display: flex; justify-content: center; align-items: center; height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px; margin-bottom: 8px; color: white; font-weight: 600;
+            padding: 20px; width: 100%;
         }
+        @media(min-width: 768px) { .no-banners { height: 200px; font-size: 20px; max-width: 1200px; margin: 0 auto 8px; } }
+        .banner-section { padding: 8px; width: 100%; }
         
-        /* BANNER CONTAINER */
-        .banner-section {
-            padding: 8px;
-            width: 100%;
-        }
-        
-        /* FOOTER FIX */
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
-        .page-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -439,9 +378,16 @@
                     <div style="font-size:12px; opacity:0.9;">Welcome to VPECom</div>
                 </div>
             </div>
+            
             <div class="menu-group">
                 <div style="padding:10px 20px; font-size:12px; color:#999; text-transform:uppercase;">Categories</div>
                 <div id="sidebar-cats">Loading...</div>
+            </div>
+
+            <div class="menu-group">
+                <a href="#" class="menu-item">
+                    <i class="fas fa-headset"></i> Help & Support
+                </a>
             </div>
         </div>
 
@@ -463,7 +409,6 @@
 
         <div id="offer-banner">🎉 FLAT <span id="offer-val">0</span>% OFF ON EVERYTHING!</div>
         
-        <!-- Banner Slider Container -->
         <div class="banner-section">
             <div id="bannerContainer"></div>
         </div>
@@ -484,6 +429,11 @@
                 </div>
             </div>
         </div>
+
+        <footer>
+            <div>&copy; 2026 VPECom Store. All Rights Reserved.</div>
+        </footer>
+
     </div>
 
 <script>
@@ -498,172 +448,112 @@
     let currentBannerIndex = 0;
     let bannerInterval;
 
-    window.onload = async () => { 
-        await fetchData();
-        if (banners.length > 1) {
-            startBannerSlider();
-        }
-    };
+    // OPTIMIZED: Start everything immediately when DOM is ready
+    document.addEventListener("DOMContentLoaded", () => {
+        initApp();
+    });
 
-    async function fetchData() {
+    async function initApp() {
         const ts = Date.now();
-        try {
-            // Fetch settings
-            const setRes = await fetch(`${BASE_URL}/settings.json?t=${ts}`);
-            if(setRes.ok) {
-                const s = await setRes.json();
-                if(s.categories) categories = s.categories;
-                if(s.wholeWebsiteOffer) globalOffer = parseInt(s.wholeWebsiteOffer);
-            }
-        } catch(e) {}
-
-        try {
-            // Fetch banners
-            const bannerRes = await fetch(`${BASE_URL}/banners.json?t=${ts}`);
-            if(bannerRes.ok) {
-                banners = await bannerRes.json();
-                renderBanners();
-            }
-        } catch(e) {
-            console.log("No banners found or error loading banners");
-        }
-
-        renderCategories();
         
-        if(globalOffer > 0) {
-            document.getElementById('offer-val').innerText = globalOffer;
-            document.getElementById('offer-banner').style.display = 'block';
-        }
+        // PARALLEL FETCHING: Fire all requests at once for max speed
+        const settingsPromise = fetch(`${BASE_URL}/settings.json?t=${ts}`).then(r => r.ok ? r.json() : {});
+        const bannersPromise = fetch(`${BASE_URL}/banners.json?t=${ts}`).then(r => r.ok ? r.json() : []);
+        const productsPromise = fetch(`${BASE_URL}/all_products.json?t=${ts}`).then(r => r.ok ? r.json() : []);
 
         try {
-            // Fetch products
-            const res = await fetch(`${BASE_URL}/all_products.json?t=${ts}`);
-            if(!res.ok) throw new Error("No Data");
-            allProducts = await res.json();
+            // Process Settings independently if needed, but we wait for parallel here for simplicity
+            const settings = await settingsPromise;
+            if(settings.categories) {
+                categories = settings.categories;
+                renderCategories();
+            }
+            if(settings.wholeWebsiteOffer) {
+                globalOffer = parseInt(settings.wholeWebsiteOffer);
+                if(globalOffer > 0) {
+                    document.getElementById('offer-val').innerText = globalOffer;
+                    document.getElementById('offer-banner').style.display = 'block';
+                }
+            }
+
+            // Process Banners
+            banners = await bannersPromise;
+            renderBanners();
+            if (banners.length > 1) startBannerSlider();
+
+            // Process Products
+            allProducts = await productsPromise;
             displayedProducts = allProducts;
             renderGrid();
+
         } catch(e) {
+            console.error("Error init:", e);
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('noResult').style.display = 'flex';
         }
     }
 
     function renderBanners() {
         const bannerContainer = document.getElementById('bannerContainer');
-        
         if (!banners || banners.length === 0) {
-            bannerContainer.innerHTML = `
-                <div class="no-banners">
-                    <div>
-                        <i class="fas fa-image" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
-                        <div>Special Offers Coming Soon!</div>
-                    </div>
-                </div>
-            `;
+            bannerContainer.innerHTML = `<div class="no-banners"><div><i class="fas fa-image" style="font-size:32px;margin-bottom:10px;"></i><div>Offers Coming Soon!</div></div></div>`;
             return;
         }
 
         if (banners.length === 1) {
-            // Single banner - no slider needed
-            const banner = banners[0];
-            bannerContainer.innerHTML = `
-                <div class="banner-slider-container">
-                    <div class="banner-slide">
-                        <img src="${banner.image}" class="banner-image" 
-                             onclick="${banner.link ? `window.open('${banner.link}', '_blank')` : ''}"
-                             alt="Banner"
-                             loading="lazy">
-                    </div>
-                </div>
-            `;
+            // Decoding async helps main thread
+            bannerContainer.innerHTML = `<div class="banner-slider-container"><div class="banner-slide"><img src="${banners[0].image}" class="banner-image" decoding="async" fetchpriority="high" onclick="${banners[0].link ? `window.open('${banners[0].link}','_blank')`:''}"></div></div>`;
             return;
         }
 
-        // Multiple banners - create slider
         let slidesHTML = '';
         let dotsHTML = '';
-        
         banners.forEach((banner, index) => {
-            slidesHTML += `
-                <div class="banner-slide" data-index="${index}">
-                    <img src="${banner.image}" class="banner-image" 
-                         onclick="${banner.link ? `window.open('${banner.link}', '_blank')` : ''}"
-                         alt="Banner ${index + 1}"
-                         loading="lazy">
-                </div>
-            `;
-            
+            // First banner gets high priority, others lazy
+            const priority = index === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
+            slidesHTML += `<div class="banner-slide"><img src="${banner.image}" class="banner-image" decoding="async" ${priority} onclick="${banner.link ? `window.open('${banner.link}','_blank')`:''}"></div>`;
             dotsHTML += `<div class="banner-dot ${index === 0 ? 'active' : ''}" onclick="goToBanner(${index})"></div>`;
         });
 
         bannerContainer.innerHTML = `
             <div class="banner-slider-container">
-                <button class="banner-nav banner-prev" onclick="prevBanner()">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div class="banner-slider" id="bannerSlider">
-                    ${slidesHTML}
-                </div>
-                <button class="banner-nav banner-next" onclick="nextBanner()">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <div class="banner-controls">
-                    ${dotsHTML}
-                </div>
+                <button class="banner-nav banner-prev" onclick="prevBanner()"><i class="fas fa-chevron-left"></i></button>
+                <div class="banner-slider" id="bannerSlider">${slidesHTML}</div>
+                <button class="banner-nav banner-next" onclick="nextBanner()"><i class="fas fa-chevron-right"></i></button>
+                <div class="banner-controls">${dotsHTML}</div>
             </div>
         `;
     }
 
     function startBannerSlider() {
-        if (bannerInterval) {
-            clearInterval(bannerInterval);
-        }
-        
-        bannerInterval = setInterval(() => {
-            nextBanner();
-        }, 5000); // Change banner every 5 seconds
+        if (bannerInterval) clearInterval(bannerInterval);
+        bannerInterval = setInterval(() => { nextBanner(); }, 5000);
     }
 
     function nextBanner() {
         if (banners.length <= 1) return;
-        
         currentBannerIndex = (currentBannerIndex + 1) % banners.length;
         updateBannerSlider();
     }
 
     function prevBanner() {
         if (banners.length <= 1) return;
-        
         currentBannerIndex = (currentBannerIndex - 1 + banners.length) % banners.length;
         updateBannerSlider();
     }
 
     function goToBanner(index) {
         if (banners.length <= 1 || index === currentBannerIndex) return;
-        
         currentBannerIndex = index;
         updateBannerSlider();
-        
-        // Reset auto-slide timer
-        if (bannerInterval) {
-            clearInterval(bannerInterval);
-            startBannerSlider();
-        }
+        if (bannerInterval) { clearInterval(bannerInterval); startBannerSlider(); }
     }
 
     function updateBannerSlider() {
         const slider = document.getElementById('bannerSlider');
         const dots = document.querySelectorAll('.banner-dot');
-        
         if (!slider) return;
-        
-        // Update slider position
         slider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
-        
-        // Update active dot
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentBannerIndex);
-        });
+        dots.forEach((dot, index) => { dot.classList.toggle('active', index === currentBannerIndex); });
     }
 
     function renderGrid() {
@@ -671,10 +561,10 @@
         const loader = document.getElementById('loader');
         const noResult = document.getElementById('noResult');
         
-        // Remove existing cards only
-        Array.from(grid.children).forEach(child => {
-            if(child.classList.contains('card')) grid.removeChild(child);
-        });
+        // Fast clear
+        grid.innerHTML = ''; 
+        grid.appendChild(loader); 
+        grid.appendChild(noResult);
 
         loader.style.display = 'none';
         
@@ -683,6 +573,9 @@
             return;
         }
         noResult.style.display = 'none';
+
+        // Fragment for speed
+        const fragment = document.createDocumentFragment();
 
         displayedProducts.forEach(p => {
             let price = parseInt(p.price);
@@ -697,7 +590,9 @@
             card.onclick = () => window.location.href = `product.html?id=${p.id}`;
             
             card.innerHTML = `
-                <img src="${img}" class="card-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300x160/f1f3f6/666?text=No+Image'">
+                <div class="image-container">
+                    <img src="${img}" class="card-img" decoding="async" loading="lazy" onerror="this.src='https://via.placeholder.com/300x169/f1f3f6/666?text=No+Image';">
+                </div>
                 <div class="details">
                     <div class="title">${p.title}</div>
                     <div class="price-row">
@@ -706,8 +601,9 @@
                     </div>
                 </div>
             `;
-            grid.appendChild(card);
+            fragment.appendChild(card);
         });
+        grid.appendChild(fragment);
     }
 
     function filterCat(cat, btn=null) {
@@ -724,6 +620,14 @@
 
     function searchProducts(q) {
         const term = q.toLowerCase();
+        const bannerSection = document.querySelector('.banner-section');
+        if (bannerSection) {
+            if (term.trim().length > 0) {
+                bannerSection.style.display = 'none';
+            } else {
+                bannerSection.style.display = 'block';
+            }
+        }
         displayedProducts = allProducts.filter(p => p.title.toLowerCase().includes(term));
         renderGrid();
     }
@@ -731,12 +635,17 @@
     function renderCategories() {
         const sidebarDiv = document.getElementById('sidebar-cats');
         const topStripDiv = document.getElementById('top-cat-strip');
-        sidebarDiv.innerHTML = `<div class="menu-item" onclick="filterCat('All')"><i class="fas fa-th-large"></i> All Products</div>`;
-        topStripDiv.innerHTML = `<div class="cat-pill active" onclick="filterCat('All', this)">All</div>`;
+        
+        let sideHtml = `<div class="menu-item" onclick="filterCat('All')"><i class="fas fa-th-large"></i> All Products</div>`;
+        let topHtml = `<div class="cat-pill active" onclick="filterCat('All', this)">All</div>`;
+        
         categories.forEach(cat => {
-            sidebarDiv.innerHTML += `<div class="menu-item" onclick="filterCat('${cat}')"><i class="fas fa-tag"></i> ${cat}</div>`;
-            topStripDiv.innerHTML += `<div class="cat-pill" onclick="filterCat('${cat}', this)">${cat}</div>`;
+            sideHtml += `<div class="menu-item" onclick="filterCat('${cat}')"><i class="fas fa-tag"></i> ${cat}</div>`;
+            topHtml += `<div class="cat-pill" onclick="filterCat('${cat}', this)">${cat}</div>`;
         });
+        
+        sidebarDiv.innerHTML = sideHtml;
+        topStripDiv.innerHTML = topHtml;
     }
 
     function toggleSidebar() {
@@ -744,60 +653,14 @@
         document.querySelector('.overlay').classList.toggle('active');
     }
 
-    // Touch support for banner slider on mobile
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    document.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.banner-slider-container')) {
-            touchStartX = e.changedTouches[0].screenX;
-        }
-    }, false);
-
-    document.addEventListener('touchend', function(e) {
-        if (e.target.closest('.banner-slider-container')) {
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => { if(e.target.closest('.banner-slider-container')) touchStartX = e.changedTouches[0].screenX; });
+    document.addEventListener('touchend', e => { 
+        if(e.target.closest('.banner-slider-container')) {
             touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }
-    }, false);
-
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        const diff = touchStartX - touchEndX;
-        
-        if (Math.abs(diff) > swipeThreshold) {
-            if (diff > 0) {
-                // Swipe left
-                nextBanner();
-            } else {
-                // Swipe right
-                prevBanner();
-            }
-        }
-    }
-
-    // Pause auto-slide when user interacts with slider
-    document.addEventListener('mouseenter', function(e) {
-        if (e.target.closest('.banner-slider-container') && bannerInterval) {
-            clearInterval(bannerInterval);
+            if(Math.abs(touchStartX - touchEndX) > 50) (touchStartX - touchEndX > 0) ? nextBanner() : prevBanner();
         }
     });
-
-    document.addEventListener('mouseleave', function(e) {
-        if (e.target.closest('.banner-slider-container') && banners.length > 1) {
-            startBannerSlider();
-        }
-    });
-
-    // Fix for mobile viewport height
-    function setVh() {
-        let vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
-    
-    setVh();
-    window.addEventListener('resize', setVh);
 </script>
-
 </body>
 </html>

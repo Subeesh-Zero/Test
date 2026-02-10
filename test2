@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="VPECom Store - Best place to buy products online. Explore our wide range of collections.">
+    <meta name="theme-color" content="#2874f0">
+    <title>VPECom Store</title>
+    
+    <link rel="preconnect" href="https://raw.githubusercontent.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <style>
+        /* RESET & VARS */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2874f0; 
+            --yellow: #ffe500; 
+            --dark: #212121;
+            --grey: #878787;
+            --bg: #f1f3f6;
+            --white: #ffffff;
+            --card-border: #e0e0e0;
+        }
+
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            -webkit-tap-highlight-color: transparent; 
+            overflow-x: hidden; 
+            margin: 0;
+        }
+
+        /* PAGE WRAPPER (Sticky Footer Logic) */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; 
+            width: 100%;
+        }
+
+        /* HEADER */
+        header { 
+            background-color: var(--primary); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            width: 100%;
+        }
+        .nav-top { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 15px; 
+            height: 55px; 
+            width: 100%;
+        }
+        .left-section { display: flex; align-items: center; gap: 15px; }
+        
+        /* Accessibility: Min touch target size */
+        .hamburger { 
+            color: white; 
+            font-size: 22px; 
+            cursor: pointer; 
+            padding: 5px; /* Bigger touch area */
+        }
+        
+        .logo { color: white; font-size: 18px; font-weight: 700; font-style: italic; text-decoration: none; display: flex; flex-direction: column; line-height: 1; }
+        .logo span { font-size: 10px; color: var(--yellow); font-weight: 500; }
+        .nav-icons { display: flex; gap: 20px; color: white; font-size: 20px; }
+
+        /* SEARCH */
+        .search-container { padding: 0 10px 10px 10px; width: 100%; }
+        .search-box { 
+            background: white; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: center; 
+            padding: 10px 12px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            width: 100%;
+        }
+        .search-box input { border: none; outline: none; width: 100%; font-size: 14px; margin-left: 10px; color: #333; background: transparent; }
+
+        /* BANNER */
+        #offer-banner { 
+            background: linear-gradient(90deg, #ff9f00 0%, #ff6f00 100%); 
+            color: white; 
+            text-align: center; 
+            padding: 8px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            display: none; 
+            width: 100%;
+        }
+        
+        /* BANNER SLIDER */
+        .banner-slider-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #ddd; /* Skeleton bg */
+        }
+        
+        .banner-slider {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+            will-change: transform; /* Hint to browser for performance */
+        }
+        
+        .banner-slide {
+            flex: 0 0 100%;
+            height: 100%;
+            position: relative;
+            min-width: 100%;
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            cursor: pointer;
+            display: block;
+        }
+        
+        .banner-controls {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .banner-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .banner-dot.active {
+            background-color: var(--primary);
+            transform: scale(1.2);
+        }
+        
+        .banner-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 40px; 
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .banner-slider-container:hover .banner-nav { opacity: 1; }
+        .banner-prev { left: 10px; }
+        .banner-next { right: 10px; }
+        
+        .cat-strip { 
+            background: white; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            white-space: nowrap; 
+            overflow-x: auto; 
+            display: flex; 
+            gap: 10px; 
+            scrollbar-width: none; 
+            border-bottom: 1px solid #e0e0e0; 
+            min-height: 45px; 
+            align-items: center; 
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .cat-strip::-webkit-scrollbar { display: none; }
+        
+        .cat-pill { 
+            background: #f0f5ff; 
+            border: 1px solid #dbeafe; 
+            padding: 6px 14px; 
+            border-radius: 50px; 
+            font-size: 13px; 
+            font-weight: 500; 
+            color: #333; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        
+        .cat-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* SIDEBAR */
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: -100%; 
+            width: 280px; 
+            max-width: 85vw;
+            height: 100vh; 
+            background: white; 
+            z-index: 2000; 
+            transition: 0.3s; 
+            overflow-y: auto; 
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { background: var(--primary); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+        
+        /* Modified User Icon to support Image */
+        .user-icon { font-size: 24px; background: white; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .user-icon img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .menu-group { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
+        .menu-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--dark); font-size: 15px; cursor: pointer; }
+        a.menu-item { text-decoration: none; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; display: none; }
+        .overlay.active { display: block; }
+
+        /* GOOGLE BTN STYLE */
+        .login-section { padding: 15px 20px; display: flex; flex-direction: column; gap: 10px; }
+        #google_btn_container { width: 100%; }
+        #logout_btn { 
+            background: #ffecb3; color: #d84315; border: none; padding: 10px; 
+            width: 100%; border-radius: 4px; font-weight: 600; cursor: pointer; display: none; 
+        }
+
+        /* CONTAINER FIX */
+        .container { 
+            padding: 8px; 
+            width: 100%;
+            position: relative; 
+            padding-bottom: 20px;
+            flex: 1; 
+        }
+        
+        /* GRID */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px; 
+            align-items: stretch;
+            width: 100%;
+            margin: 0 auto;
+            content-visibility: auto; 
+        }
+        
+        /* CARD */
+        .card { 
+            background: white; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            border: 1px solid var(--card-border); 
+            position: relative; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column; 
+            width: 100%; 
+            height: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .card:active { transform: scale(0.98); }
+
+        /* IMAGE CONTAINER (16:9) */
+        .image-container {
+            width: 100%;
+            background: #f1f3f6; /* Placeholder color */
+            display: block;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16 / 9; 
+        }
+        
+        .card-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center;
+            display: block;
+        }
+        
+        /* DETAILS */
+        .details { 
+            padding: 10px; 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 75px; 
+        }
+        
+        .title { 
+            font-size: 13px; 
+            color: #212121; 
+            font-weight: 500; 
+            line-height: 1.3; 
+            margin-bottom: 6px; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+        
+        .price-row { 
+            display: flex; 
+            align-items: baseline; 
+            gap: 6px; 
+            flex-wrap: wrap; 
+        }
+        
+        .price { font-size: 15px; font-weight: 600; color: #212121; }
+        .mrp { font-size: 11px; color: var(--grey); text-decoration: line-through; }
+        .off { font-size: 11px; color: #388e3c; font-weight: 700; }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            width: 100%;
+            font-weight: 500;
+            margin-top: auto; 
+        }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 767px) {
+            .product-grid { gap: 6px; }
+            .details { padding: 8px; }
+        }
+        @media(min-width: 480px) { 
+            .product-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        }
+        @media(min-width: 768px) { 
+            .product-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1200px; margin: 0 auto; }
+            .banner-slider-container { height: 250px; max-width: 1200px; margin: 0 auto 8px; }
+            .cat-strip { max-width: 1200px; margin: 0 auto 8px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #d0d0d0; }
+            .card:hover .card-img { transform: scale(1.05); transition: transform 0.4s ease; }
+        }
+        @media(min-width: 1024px) { 
+            .product-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* UTILS */
+        .status-container {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 100%; height: 50vh; text-align: center; color: #666; grid-column: 1 / -1; 
+        }
+        .no-result i { font-size: 40px; color: #ddd; margin-bottom: 15px; }
+        .fa-spinner { color: var(--primary); font-size: 30px; margin-bottom: 15px; }
+        
+        .no-banners {
+            display: flex; justify-content: center; align-items: center; height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px; margin-bottom: 8px; color: white; font-weight: 600;
+            padding: 20px; width: 100%;
+        }
+        @media(min-width: 768px) { .no-banners { height: 200px; font-size: 20px; max-width: 1200px; margin: 0 auto 8px; } }
+        .banner-section { padding: 8px; width: 100%; }
+        
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="overlay" onclick="toggleSidebar()"></div>
+
+        <nav class="sidebar" id="sidebar" aria-label="Main Navigation">
+            <div class="sidebar-header">
+                <div class="user-icon" id="userIcon"><i class="fas fa-user"></i></div>
+                <div>
+                    <div style="font-size:16px; font-weight:600;" id="userNameDisplay">Hello, Guest</div>
+                    <div style="font-size:12px; opacity:0.9;">Welcome to VPECom</div>
+                </div>
+            </div>
+
+            <div class="menu-group">
+                <div class="login-section">
+                    <div id="google_btn_container">
+                        <div id="g_id_onload"
+                             data-client_id="YOUR_GOOGLE_CLIENT_ID_HERE"
+                             data-callback="handleCredentialResponse"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="outline"
+                             data-text="sign_in_with"
+                             data-shape="rectangular"
+                             data-logo_alignment="left">
+                        </div>
+                    </div>
+                    <button id="logout_btn" onclick="logoutUser()">Logout</button>
+                </div>
+            </div>
+            
+            <div class="menu-group">
+                <div style="padding:10px 20px; font-size:12px; color:#999; text-transform:uppercase;">Categories</div>
+                <div id="sidebar-cats">Loading...</div>
+            </div>
+
+            <div class="menu-group">
+                <a href="#" class="menu-item">
+                    <i class="fas fa-headset"></i> Help & Support
+                </a>
+            </div>
+        </nav>
+
+        <header>
+            <div class="nav-top">
+                <div class="left-section">
+                    <button class="fas fa-bars hamburger" style="background:none; border:none;" onclick="toggleSidebar()" aria-label="Open Menu"></button>
+                    <a href="#" class="logo">VPECom <span>Explore Plus <i class="fas fa-star" style="color:#ffe500; font-size:8px;"></i></span></a>
+                </div>
+                <div class="nav-icons"><i class="fas fa-shopping-cart" aria-label="Cart" role="button" tabindex="0"></i></div>
+            </div>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color:#2874f0;"></i>
+                    <input type="text" id="searchInput" placeholder="Search products..." onkeyup="searchProducts(this.value)" aria-label="Search products">
+                </div>
+            </div>
+        </header>
+
+        <div id="offer-banner" role="alert">🎉 FLAT <span id="offer-val">0</span>% OFF ON EVERYTHING!</div>
+        
+        <div class="banner-section">
+            <div id="bannerContainer"></div>
+        </div>
+        
+        <div class="cat-strip" id="top-cat-strip">
+            <div style="font-size:12px; color:#999; padding-left:10px;">Loading...</div>
+        </div>
+
+        <main class="container">
+            <div class="product-grid" id="productGrid">
+                <div id="loader" class="status-container">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading...</p>
+                </div>
+                <div id="noResult" class="status-container" style="display:none;">
+                    <i class="fas fa-search"></i>
+                    <p>No products found!</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div>&copy; 2026 VPECom Store. All Rights Reserved.</div>
+        </footer>
+
+    </div>
+
+<script>
+    const REPO = "Subeesh-Zero/VPECom";
+    const BASE_URL = `https://raw.githubusercontent.com/${REPO}/main`;
+
+    let allProducts = [];
+    let displayedProducts = [];
+    let categories = []; 
+    let globalOffer = 0;
+    let banners = [];
+    let currentBannerIndex = 0;
+    let bannerInterval;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initApp();
+        checkLoginState(); // Check if user is already logged in
+    });
+
+    // --- GOOGLE LOGIN LOGIC START ---
+
+    // 1. Handle the response from Google
+    function handleCredentialResponse(response) {
+        // Decode the JWT token
+        const responsePayload = decodeJwtResponse(response.credential);
+        
+        // Save user info to LocalStorage
+        localStorage.setItem("VPECom_User_Name", responsePayload.name);
+        localStorage.setItem("VPECom_User_Pic", responsePayload.picture);
+        
+        // Update UI
+        updateUserUI(responsePayload.name, responsePayload.picture);
+    }
+
+    // 2. Helper to decode JWT (Token)
+    function decodeJwtResponse(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
+    // 3. Check login state on page load
+    function checkLoginState() {
+        const storedName = localStorage.getItem("VPECom_User_Name");
+        const storedPic = localStorage.getItem("VPECom_User_Pic");
+        
+        if (storedName) {
+            updateUserUI(storedName, storedPic);
+        }
+    }
+
+    // 4. Update Sidebar UI
+    function updateUserUI(name, pic) {
+        document.getElementById("userNameDisplay").innerText = "Hello, " + name;
+        if(pic) {
+            document.getElementById("userIcon").innerHTML = `<img src="${pic}" alt="User">`;
+        }
+        // Hide Google Btn, Show Logout
+        document.getElementById("google_btn_container").style.display = "none";
+        document.getElementById("logout_btn").style.display = "block";
+    }
+
+    // 5. Logout Function
+    function logoutUser() {
+        localStorage.removeItem("VPECom_User_Name");
+        localStorage.removeItem("VPECom_User_Pic");
+        location.reload(); // Reload page to reset state
+    }
+
+    // --- GOOGLE LOGIN LOGIC END ---
+
+    async function initApp() {
+        const ts = Date.now();
+        
+        const settingsPromise = fetch(`${BASE_URL}/settings.json?t=${ts}`).then(r => r.ok ? r.json() : {});
+        const bannersPromise = fetch(`${BASE_URL}/banners.json?t=${ts}`).then(r => r.ok ? r.json() : []);
+        const productsPromise = fetch(`${BASE_URL}/all_products.json?t=${ts}`).then(r => r.ok ? r.json() : []);
+
+        try {
+            const settings = await settingsPromise;
+            if(settings.categories) {
+                categories = settings.categories;
+                renderCategories();
+            }
+            if(settings.wholeWebsiteOffer) {
+                globalOffer = parseInt(settings.wholeWebsiteOffer);
+                if(globalOffer > 0) {
+                    document.getElementById('offer-val').innerText = globalOffer;
+                    document.getElementById('offer-banner').style.display = 'block';
+                }
+            }
+
+            banners = await bannersPromise;
+            renderBanners();
+            if (banners.length > 1) startBannerSlider();
+
+            allProducts = await productsPromise;
+            displayedProducts = allProducts;
+            renderGrid();
+
+        } catch(e) {
+            console.error("Error init:", e);
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    function renderBanners() {
+        const bannerContainer = document.getElementById('bannerContainer');
+        if (!banners || banners.length === 0) {
+            bannerContainer.innerHTML = `<div class="no-banners"><div><i class="fas fa-image" style="font-size:32px;margin-bottom:10px;"></i><div>Offers Coming Soon!</div></div></div>`;
+            return;
+        }
+
+        if (banners.length === 1) {
+            bannerContainer.innerHTML = `<div class="banner-slider-container"><div class="banner-slide"><img src="${banners[0].image}" class="banner-image" alt="Special Offer Banner" decoding="async" fetchpriority="high" onclick="${banners[0].link ? `window.open('${banners[0].link}','_blank')`:''}"></div></div>`;
+            return;
+        }
+
+        let slidesHTML = '';
+        let dotsHTML = '';
+        banners.forEach((banner, index) => {
+            const priority = index === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
+            slidesHTML += `<div class="banner-slide"><img src="${banner.image}" class="banner-image" alt="Offer Banner ${index+1}" decoding="async" ${priority} onclick="${banner.link ? `window.open('${banner.link}','_blank')`:''}"></div>`;
+            dotsHTML += `<div class="banner-dot ${index === 0 ? 'active' : ''}" onclick="goToBanner(${index})" role="button" aria-label="Go to slide ${index+1}"></div>`;
+        });
+
+        bannerContainer.innerHTML = `
+            <div class="banner-slider-container">
+                <button class="banner-nav banner-prev" onclick="prevBanner()" aria-label="Previous Slide"><i class="fas fa-chevron-left"></i></button>
+                <div class="banner-slider" id="bannerSlider">${slidesHTML}</div>
+                <button class="banner-nav banner-next" onclick="nextBanner()" aria-label="Next Slide"><i class="fas fa-chevron-right"></i></button>
+                <div class="banner-controls">${dotsHTML}</div>
+            </div>
+        `;
+    }
+
+    function startBannerSlider() {
+        if (bannerInterval) clearInterval(bannerInterval);
+        bannerInterval = setInterval(() => { nextBanner(); }, 5000);
+    }
+
+    function nextBanner() {
+        if (banners.length <= 1) return;
+        currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+        updateBannerSlider();
+    }
+
+    function prevBanner() {
+        if (banners.length <= 1) return;
+        currentBannerIndex = (currentBannerIndex - 1 + banners.length) % banners.length;
+        updateBannerSlider();
+    }
+
+    function goToBanner(index) {
+        if (banners.length <= 1 || index === currentBannerIndex) return;
+        currentBannerIndex = index;
+        updateBannerSlider();
+        if (bannerInterval) { clearInterval(bannerInterval); startBannerSlider(); }
+    }
+
+    function updateBannerSlider() {
+        const slider = document.getElementById('bannerSlider');
+        const dots = document.querySelectorAll('.banner-dot');
+        if (!slider) return;
+        slider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+        dots.forEach((dot, index) => { dot.classList.toggle('active', index === currentBannerIndex); });
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('productGrid');
+        const loader = document.getElementById('loader');
+        const noResult = document.getElementById('noResult');
+        
+        grid.innerHTML = ''; 
+        grid.appendChild(loader); 
+        grid.appendChild(noResult);
+
+        loader.style.display = 'none';
+        
+        if(displayedProducts.length === 0) {
+            noResult.style.display = 'flex';
+            return;
+        }
+        noResult.style.display = 'none';
+
+        const fragment = document.createDocumentFragment();
+
+        displayedProducts.forEach(p => {
+            let price = parseInt(p.price);
+            let pOffer = parseInt(p.offer) || 0;
+            let finalOffer = Math.max(globalOffer, pOffer);
+            let finalPrice = Math.floor(price - (price * finalOffer / 100));
+            
+            let img = (p.images && p.images.length > 0) ? p.images[0] : p.image;
+            
+            const card = document.createElement('article'); 
+            card.className = 'card';
+            card.onclick = () => window.location.href = `product.html?id=${p.id}`;
+            
+            card.innerHTML = `
+                <div class="image-container">
+                    <img src="${img}" class="card-img" alt="${p.title}" decoding="async" loading="lazy" onerror="this.src='https://via.placeholder.com/300x169/f1f3f6/666?text=No+Image';">
+                </div>
+                <div class="details">
+                    <div class="title">${p.title}</div>
+                    <div class="price-row">
+                        <span class="price">₹${finalPrice}</span>
+                        ${finalOffer > 0 ? `<span class="mrp">₹${price}</span><span class="off">${finalOffer}% off</span>` : ''}
+                    </div>
+                </div>
+            `;
+            fragment.appendChild(card);
+        });
+        grid.appendChild(fragment);
+    }
+
+    function filterCat(cat, btn=null) {
+        if(btn) {
+            document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        document.getElementById('sidebar').classList.remove('active');
+        document.querySelector('.overlay').classList.remove('active');
+        if(cat === 'All') displayedProducts = allProducts;
+        else displayedProducts = allProducts.filter(p => p.category === cat);
+        renderGrid();
+    }
+
+    function searchProducts(q) {
+        const term = q.toLowerCase();
+        const bannerSection = document.querySelector('.banner-section');
+        if (bannerSection) {
+            if (term.trim().length > 0) {
+                bannerSection.style.display = 'none';
+            } else {
+                bannerSection.style.display = 'block';
+            }
+        }
+        displayedProducts = allProducts.filter(p => p.title.toLowerCase().includes(term));
+        renderGrid();
+    }
+
+    function renderCategories() {
+        const sidebarDiv = document.getElementById('sidebar-cats');
+        const topStripDiv = document.getElementById('top-cat-strip');
+        
+        let sideHtml = `<div class="menu-item" onclick="filterCat('All')"><i class="fas fa-th-large"></i> All Products</div>`;
+        let topHtml = `<button class="cat-pill active" onclick="filterCat('All', this)">All</button>`;
+        
+        categories.forEach(cat => {
+            sideHtml += `<div class="menu-item" onclick="filterCat('${cat}')"><i class="fas fa-tag"></i> ${cat}</div>`;
+            topHtml += `<button class="cat-pill" onclick="filterCat('${cat}', this)">${cat}</button>`;
+        });
+        
+        sidebarDiv.innerHTML = sideHtml;
+        topStripDiv.innerHTML = topHtml;
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.querySelector('.overlay').classList.toggle('active');
+    }
+
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => { if(e.target.closest('.banner-slider-container')) touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchend', e => { 
+        if(e.target.closest('.banner-slider-container')) {
+            touchEndX = e.changedTouches[0].screenX;
+            if(Math.abs(touchStartX - touchEndX) > 50) (touchStartX - touchEndX > 0) ? nextBanner() : prevBanner();
+        }
+    }, {passive: true});
+</script>
+</body>
+</html>

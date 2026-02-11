@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VPECom Store</title>
+    
+    <!-- FONTS & ICONS - Preconnect for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- GOOGLE IDENTITY SERVICES (NEW LOGIN LIBRARY) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <style>
+        /* RESET & VARS – unchanged */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2874f0; 
+            --yellow: #ffe500; 
+            --dark: #212121;
+            --grey: #878787;
+            --bg: #f1f3f6;
+            --white: #ffffff;
+            --card-border: #e0e0e0;
+        }
+
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            -webkit-tap-highlight-color: transparent; 
+            overflow-x: hidden; 
+            margin: 0;
+        }
+
+        /* PAGE WRAPPER */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; 
+            width: 100%;
+        }
+
+        /* HEADER – FEATURE 3: sticky removed, now scrolls away normally */
+        header { 
+            background-color: var(--primary); 
+            position: relative;          /* not sticky anymore */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            width: 100%;
+            z-index: 1000;              /* stays above content */
+        }
+        .nav-top { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 15px; 
+            height: 55px; 
+            width: 100%;
+        }
+        .left-section { display: flex; align-items: center; gap: 15px; }
+        .hamburger { color: white; font-size: 22px; cursor: pointer; }
+        .logo { color: white; font-size: 18px; font-weight: 700; font-style: italic; text-decoration: none; display: flex; flex-direction: column; line-height: 1; }
+        .logo span { font-size: 10px; color: var(--yellow); font-weight: 500; }
+        .nav-icons { display: flex; gap: 20px; color: white; font-size: 20px; }
+
+        /* SEARCH CONTAINER – FEATURE 1: sticky at top, white background when stuck */
+        .search-container { 
+            padding: 0 10px 10px 10px; 
+            width: 100%;
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
+            transition: box-shadow 0.2s;
+            background: transparent;    /* original: no background */
+        }
+        /* class added by JS when sticky becomes active */
+        .search-container.stuck {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .search-box { 
+            background: white; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: center; 
+            padding: 10px 12px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            width: 100%;
+        }
+        .search-box input { border: none; outline: none; width: 100%; font-size: 14px; margin-left: 10px; color: #333; background: transparent; }
+
+        /* BANNER */
+        #offer-banner { 
+            background: linear-gradient(90deg, #ff9f00 0%, #ff6f00 100%); 
+            color: white; 
+            text-align: center; 
+            padding: 8px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            display: none; 
+            width: 100%;
+        }
+        
+        /* BANNER SLIDER */
+        .banner-slider-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .banner-slider {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        .banner-slide {
+            flex: 0 0 100%;
+            height: 100%;
+            position: relative;
+            min-width: 100%;
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        
+        .banner-controls {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .banner-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .banner-dot.active {
+            background-color: var(--primary);
+            transform: scale(1.2);
+        }
+        
+        .banner-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .banner-slider-container:hover .banner-nav { opacity: 1; }
+        .banner-prev { left: 10px; }
+        .banner-next { right: 10px; }
+        
+        .cat-strip { 
+            background: white; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            white-space: nowrap; 
+            overflow-x: auto; 
+            display: flex; 
+            gap: 10px; 
+            scrollbar-width: none; 
+            border-bottom: 1px solid #e0e0e0; 
+            min-height: 45px; 
+            align-items: center; 
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .cat-strip::-webkit-scrollbar { display: none; }
+        
+        .cat-pill { 
+            background: #f0f5ff; 
+            border: 1px solid #dbeafe; 
+            padding: 6px 14px; 
+            border-radius: 50px; 
+            font-size: 13px; 
+            font-weight: 500; 
+            color: #333; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        
+        .cat-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* SIDEBAR (Modified for Login) – unchanged */
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: -100%; 
+            width: 280px; 
+            max-width: 85vw;
+            height: 100vh; 
+            background: white; 
+            z-index: 2000; 
+            transition: 0.3s; 
+            overflow-y: auto; 
+        }
+        .sidebar.active { left: 0; }
+        
+        /* Sidebar Header - Login Section */
+        .sidebar-header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column;
+            gap: 10px; 
+            min-height: 80px;
+            justify-content: center;
+        }
+
+        /* Default Icon style (when not logged in) */
+        .default-user-icon { 
+            font-size: 24px; 
+            background: white; 
+            color: var(--primary); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            margin-right: 15px; 
+        }
+
+        /* Google Login Wrapper */
+        .google-login-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        /* Logged In User Profile Style */
+        .user-profile-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+        .user-info-text {
+            flex: 1;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2px;
+        }
+        .user-email {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 4px;
+        }
+        .logout-btn {
+            font-size: 11px;
+            background: rgba(0,0,0,0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .logout-btn:hover { background: rgba(0,0,0,0.4); }
+
+        .menu-group { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
+        .menu-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--dark); font-size: 15px; cursor: pointer; }
+        a.menu-item { text-decoration: none; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; display: none; }
+        .overlay.active { display: block; }
+
+        /* CONTAINER FIX */
+        .container { 
+            padding: 8px; 
+            width: 100%;
+            position: relative; 
+            padding-bottom: 20px;
+            flex: 1; 
+        }
+        
+        /* GRID */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px; 
+            align-items: stretch;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* CARD – unchanged, we only add absolute‑positioned button */
+        .card { 
+            background: white; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            border: 1px solid var(--card-border); 
+            position: relative; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column; 
+            width: 100%; 
+            height: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .card:active { transform: scale(0.98); }
+
+        /* IMAGE CONTAINER */
+        .image-container {
+            width: 100%;
+            background: white;
+            display: block;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16 / 9; 
+        }
+        
+        .card-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center;
+            display: block;
+        }
+        
+        /* DETAILS */
+        .details { 
+            padding: 10px; 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 75px; 
+            position: relative; /* for absolute positioning of add-to-cart button */
+        }
+        
+        .title { 
+            font-size: 13px; 
+            color: #212121; 
+            font-weight: 500; 
+            line-height: 1.3; 
+            margin-bottom: 6px; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+        
+        .price-row { 
+            display: flex; 
+            align-items: baseline; 
+            gap: 6px; 
+            flex-wrap: wrap; 
+        }
+        
+        .price { font-size: 15px; font-weight: 600; color: #212121; }
+        .mrp { font-size: 11px; color: var(--grey); text-decoration: line-through; }
+        .off { font-size: 11px; color: #388e3c; font-weight: 700; }
+
+        /* ---------- FEATURE 2: ADD TO CART BUTTON ---------- */
+        .add-to-cart-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 10;
+        }
+        .add-to-cart-btn:hover {
+            transform: scale(1.1);
+            background: #1a5dc6;
+        }
+        .add-to-cart-btn i {
+            pointer-events: none;
+        }
+        /* preserve original card style – button does not disturb layout */
+
+        /* ---------- FEATURE 3: BOTTOM NAVIGATION (mobile only) ---------- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease-in-out;
+            z-index: 2000;
+            transform: translateY(0); /* visible by default */
+            /* hidden on desktop */
+            display: none;
+        }
+        .bottom-nav a {
+            color: var(--dark);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            gap: 4px;
+        }
+        .bottom-nav i {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        /* Show bottom nav only on mobile (≤ 767px) */
+        @media (max-width: 767px) {
+            .bottom-nav {
+                display: flex;
+            }
+            .product-grid { gap: 6px; }
+            .details { padding: 8px; }
+        }
+
+        /* ---------- FEATURE 2: TOAST NOTIFICATION ---------- */
+        .toast-message {
+            position: fixed;
+            bottom: 80px;          /* above bottom nav */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 3000;
+            animation: fadeInOut 2s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; bottom: 60px; }
+            10% { opacity: 1; bottom: 80px; }
+            90% { opacity: 1; bottom: 80px; }
+            100% { opacity: 0; bottom: 60px; }
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            width: 100%;
+            font-weight: 500;
+            margin-top: auto; 
+        }
+
+        /* MEDIA QUERIES */
+        @media(min-width: 480px) { 
+            .product-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        }
+        
+        @media(min-width: 768px) { 
+            .product-grid { 
+                grid-template-columns: repeat(4, 1fr); 
+                gap: 15px; 
+                max-width: 1200px; 
+                margin: 0 auto; 
+            }
+            .banner-slider-container { height: 250px; max-width: 1200px; margin: 0 auto 8px; }
+            .cat-strip { max-width: 1200px; margin: 0 auto 8px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                border-color: #d0d0d0;
+            }
+            .card:hover .card-img { 
+                transform: scale(1.05); 
+                transition: transform 0.4s ease; 
+            }
+        }
+        
+        @media(min-width: 1024px) { 
+            .product-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* UTILS */
+        .status-container {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 100%; height: 50vh; text-align: center; color: #666; grid-column: 1 / -1; 
+        }
+        .no-result i { font-size: 40px; color: #ddd; margin-bottom: 15px; }
+        .fa-spinner { color: var(--primary); font-size: 30px; margin-bottom: 15px; }
+        
+        .no-banners {
+            display: flex; justify-content: center; align-items: center; height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px; margin-bottom: 8px; color: white; font-weight: 600;
+            padding: 20px; width: 100%;
+        }
+        @media(min-width: 768px) { .no-banners { height: 200px; font-size: 20px; max-width: 1200px; margin: 0 auto 8px; } }
+        .banner-section { padding: 8px; width: 100%; }
+        
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="overlay" onclick="toggleSidebar()"></div>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <!-- LOGGED OUT VIEW (GOOGLE BUTTON) -->
+                <div id="login-section" style="display:block;">
+                    <div style="display:flex; align-items:center; margin-bottom:10px;">
+                        <div class="default-user-icon"><i class="fas fa-user"></i></div>
+                        <div>
+                            <div style="font-size:16px; font-weight:600;">Welcome</div>
+                            <div style="font-size:12px; opacity:0.9;">Sign in for best experience</div>
+                        </div>
+                    </div>
+                    <div class="google-login-wrapper" id="google_btn_container">
+                        <!-- Google Button Renders Here -->
+                    </div>
+                </div>
+
+                <!-- LOGGED IN VIEW (USER PROFILE) -->
+                <div id="user-section" class="user-profile-display" style="display:none;">
+                    <img id="user-avatar" src="" alt="User" class="user-avatar">
+                    <div class="user-info-text">
+                        <div id="user-name" class="user-name">User Name</div>
+                        <div id="user-email" class="user-email">email@example.com</div>
+                        <div class="logout-btn" onclick="handleLogout()">Logout</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-group">
+                <div style="padding:10px 20px; font-size:12px; color:#999; text-transform:uppercase;">Categories</div>
+                <div id="sidebar-cats">Loading...</div>
+            </div>
+
+            <div class="menu-group">
+                <a href="#" class="menu-item">
+                    <i class="fas fa-headset"></i> Help & Support
+                </a>
+            </div>
+        </div>
+
+        <header>
+            <div class="nav-top">
+                <div class="left-section">
+                    <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+                    <a href="#" class="logo">VPECom <span>Explore Plus <i class="fas fa-star" style="color:#ffe500; font-size:8px;"></i></span></a>
+                </div>
+                <!-- FEATURE 2: Cart icon now has ID for event listener -->
+                <div class="nav-icons"><i id="cartIcon" class="fas fa-shopping-cart"></i></div>
+            </div>
+            <!-- FEATURE 1: search container sticky – header scrolls away -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color:#2874f0;"></i>
+                    <input type="text" id="searchInput" placeholder="Search products..." onkeyup="searchProducts(this.value)">
+                </div>
+            </div>
+        </header>
+
+        <div id="offer-banner">🎉 FLAT <span id="offer-val">0</span>% OFF ON EVERYTHING!</div>
+        
+        <div class="banner-section">
+            <div id="bannerContainer"></div>
+        </div>
+        
+        <div class="cat-strip" id="top-cat-strip">
+            <div style="font-size:12px; color:#999; padding-left:10px;">Loading...</div>
+        </div>
+
+        <div class="container">
+            <div class="product-grid" id="productGrid">
+                <div id="loader" class="status-container">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading...</p>
+                </div>
+                <div id="noResult" class="status-container" style="display:none;">
+                    <i class="fas fa-search"></i>
+                    <p>No products found!</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div>&copy; 2026 VPECom Store. All Rights Reserved.</div>
+        </footer>
+    </div>
+
+    <!-- ---------- FEATURE 3: BOTTOM NAVIGATION BAR (mobile only) ---------- -->
+    <div class="bottom-nav" id="bottomNav">
+        <a href="#"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="#"><i class="fas fa-th-large"></i><span>Categories</span></a>
+        <a href="#"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+        <a href="#"><i class="fas fa-user"></i><span>Account</span></a>
+    </div>
+
+<script>
+    const REPO = "Subeesh-Zero/VPECom";
+    const BASE_URL = `https://raw.githubusercontent.com/${REPO}/main`;
+
+    let allProducts = [];
+    let displayedProducts = [];
+    let categories = []; 
+    let globalOffer = 0;
+    let banners = [];
+    let currentBannerIndex = 0;
+    let bannerInterval;
+
+    // --- GOOGLE LOGIN CONFIGURATION ---
+    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com"; 
+
+    window.onload = async () => { 
+        initGoogleAuth();
+        checkLoginStatus();
+
+        await fetchData();
+        if (banners.length > 1) {
+            startBannerSlider();
+        }
+
+        // FEATURE 1 & 3: attach scroll listeners for bottom nav & sticky search background
+        setupScrollListeners();
+
+        // FEATURE 2: attach event listener to cart icon in header
+        const cartIcon = document.getElementById('cartIcon');
+        if (cartIcon) {
+            cartIcon.addEventListener('click', showCart);
+        }
+    };
+
+    // ---------- FEATURE 1 & 3: SCROLL HANDLING ----------
+    let lastScrollY = 0;
+    const SCROLL_THRESHOLD = 10;
+    function setupScrollListeners() {
+        const bottomNav = document.getElementById('bottomNav');
+        const searchContainer = document.getElementById('searchContainer');
+
+        window.addEventListener('scroll', function() {
+            const currentScrollY = window.scrollY;
+            
+            // ----- FEATURE 3: auto-hide bottom nav (mobile only) -----
+            if (bottomNav) {
+                if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+                    // scrolling down
+                    bottomNav.style.transform = 'translateY(100%)';
+                } else if (currentScrollY < lastScrollY) {
+                    // scrolling up
+                    bottomNav.style.transform = 'translateY(0)';
+                }
+            }
+            
+            // ----- FEATURE 1: add white background & shadow when search bar is stuck -----
+            if (searchContainer) {
+                const rect = searchContainer.getBoundingClientRect();
+                if (rect.top <= 0) {
+                    searchContainer.classList.add('stuck');
+                } else {
+                    searchContainer.classList.remove('stuck');
+                }
+            }
+
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+    }
+
+    // ---------- FEATURE 2: ADD TO CART (save full product data) ----------
+    function addToCart(productId) {
+        // Find product from allProducts
+        const product = allProducts.find(p => p.id === productId);
+        if (!product) return;
+
+        // Calculate final price as shown on card
+        let price = parseInt(product.price);
+        let pOffer = parseInt(product.offer) || 0;
+        let finalOffer = Math.max(globalOffer, pOffer);
+        let finalPrice = Math.floor(price - (price * finalOffer / 100));
+
+        // Create cart item object
+        const cartItem = {
+            id: product.id,
+            title: product.title,
+            price: finalPrice
+        };
+
+        // Get existing cart from localStorage (use exact key: VPECom_Cart)
+        let cart = JSON.parse(localStorage.getItem('VPECom_Cart')) || [];
+        cart.push(cartItem);
+        localStorage.setItem('VPECom_Cart', JSON.stringify(cart));
+
+        showToast('Added to Cart');
+    }
+
+    // FEATURE 2: Show cart contents and ask "Buy Now?"
+    function showCart() {
+        const cart = JSON.parse(localStorage.getItem('VPECom_Cart')) || [];
+        if (cart.length === 0) {
+            alert('Your cart is empty.');
+            return;
+        }
+
+        // Build message with items and total
+        let message = 'Items in your cart:\n';
+        let total = 0;
+        cart.forEach((item, index) => {
+            message += `${index + 1}. ${item.title} - ₹${item.price}\n`;
+            total += item.price;
+        });
+        message += `\nTotal: ₹${total}\n\nBuy Now?`;
+
+        if (confirm(message)) {
+            // Clear cart after purchase
+            localStorage.removeItem('VPECom_Cart');
+            alert('Thank you for your purchase!');
+        }
+    }
+
+    // Simple toast notification
+    function showToast(message) {
+        const existingToast = document.querySelector('.toast-message');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 2000);
+    }
+
+    // --- GOOGLE AUTH FUNCTIONS (unchanged) ---
+    function initGoogleAuth() {
+        if(window.google) {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse
+            });
+            renderGoogleButton();
+        } else {
+            setTimeout(initGoogleAuth, 500);
+        }
+    }
+
+    function renderGoogleButton() {
+        const container = document.getElementById("google_btn_container");
+        if(container) {
+            google.accounts.id.renderButton(
+                container,
+                { 
+                    theme: "outline", 
+                    size: "large", 
+                    text: "signin_with",
+                    shape: "rectangular",
+                    width: 240
+                } 
+            );
+        }
+    }
+
+    function handleCredentialResponse(response) {
+        const responsePayload = decodeJwtResponse(response.credential);
+        const userData = {
+            name: responsePayload.name,
+            email: responsePayload.email,
+            picture: responsePayload.picture
+        };
+        localStorage.setItem('vpecom_user', JSON.stringify(userData));
+        updateSidebarUser(userData);
+    }
+
+    function decodeJwtResponse(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
+    function checkLoginStatus() {
+        const storedUser = localStorage.getItem('vpecom_user');
+        if(storedUser) {
+            updateSidebarUser(JSON.parse(storedUser));
+        } else {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('user-section').style.display = 'none';
+        }
+    }
+
+    function updateSidebarUser(user) {
+        document.getElementById('login-section').style.display = 'none';
+        const userSection = document.getElementById('user-section');
+        
+        document.getElementById('user-name').innerText = user.name;
+        document.getElementById('user-email').innerText = user.email;
+        document.getElementById('user-avatar').src = user.picture;
+        
+        userSection.style.display = 'flex';
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('vpecom_user');
+        document.getElementById('user-section').style.display = 'none';
+        document.getElementById('login-section').style.display = 'block';
+        renderGoogleButton();
+    }
+    // --- END GOOGLE AUTH ---
+
+    async function fetchData() {
+        const ts = Date.now();
+        try {
+            const setRes = await fetch(`${BASE_URL}/settings.json?t=${ts}`);
+            if(setRes.ok) {
+                const s = await setRes.json();
+                if(s.categories) categories = s.categories;
+                if(s.wholeWebsiteOffer) globalOffer = parseInt(s.wholeWebsiteOffer);
+            }
+        } catch(e) {}
+
+        try {
+            const bannerRes = await fetch(`${BASE_URL}/banners.json?t=${ts}`);
+            if(bannerRes.ok) {
+                banners = await bannerRes.json();
+                renderBanners();
+            }
+        } catch(e) { console.log("No banners"); }
+
+        renderCategories();
+        
+        if(globalOffer > 0) {
+            document.getElementById('offer-val').innerText = globalOffer;
+            document.getElementById('offer-banner').style.display = 'block';
+        }
+
+        try {
+            const res = await fetch(`${BASE_URL}/all_products.json?t=${ts}`);
+            if(!res.ok) throw new Error("No Data");
+            allProducts = await res.json();
+            displayedProducts = allProducts;
+            renderGrid();
+        } catch(e) {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('noResult').style.display = 'flex';
+        }
+    }
+
+    // OPTIMIZATION: added loading="lazy" and fetchpriority="high" for first banner
+    function renderBanners() {
+        const bannerContainer = document.getElementById('bannerContainer');
+        if (!banners || banners.length === 0) {
+            bannerContainer.innerHTML = `<div class="no-banners"><div><i class="fas fa-image" style="font-size:32px;margin-bottom:10px;"></i><div>Offers Coming Soon!</div></div></div>`;
+            return;
+        }
+
+        if (banners.length === 1) {
+            bannerContainer.innerHTML = `<div class="banner-slider-container">
+                <div class="banner-slide">
+                    <img src="${banners[0].image}" class="banner-image" loading="lazy" fetchpriority="high" onclick="${banners[0].link ? `window.open('${banners[0].link}','_blank')`:''}">
+                </div>
+            </div>`;
+            return;
+        }
+
+        let slidesHTML = '';
+        let dotsHTML = '';
+        banners.forEach((banner, index) => {
+            // Add loading="lazy" to all banner images, and fetchpriority="high" to the first one
+            const fetchPriority = index === 0 ? 'fetchpriority="high"' : '';
+            slidesHTML += `<div class="banner-slide">
+                <img src="${banner.image}" class="banner-image" loading="lazy" ${fetchPriority} onclick="${banner.link ? `window.open('${banner.link}','_blank')`:''}">
+            </div>`;
+            dotsHTML += `<div class="banner-dot ${index === 0 ? 'active' : ''}" onclick="goToBanner(${index})"></div>`;
+        });
+
+        bannerContainer.innerHTML = `
+            <div class="banner-slider-container">
+                <button class="banner-nav banner-prev" onclick="prevBanner()"><i class="fas fa-chevron-left"></i></button>
+                <div class="banner-slider" id="bannerSlider">${slidesHTML}</div>
+                <button class="banner-nav banner-next" onclick="nextBanner()"><i class="fas fa-chevron-right"></i></button>
+                <div class="banner-controls">${dotsHTML}</div>
+            </div>
+        `;
+    }
+
+    function startBannerSlider() {
+        if (bannerInterval) clearInterval(bannerInterval);
+        bannerInterval = setInterval(() => { nextBanner(); }, 5000);
+    }
+
+    function nextBanner() {
+        if (banners.length <= 1) return;
+        currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+        updateBannerSlider();
+    }
+
+    function prevBanner() {
+        if (banners.length <= 1) return;
+        currentBannerIndex = (currentBannerIndex - 1 + banners.length) % banners.length;
+        updateBannerSlider();
+    }
+
+    function goToBanner(index) {
+        if (banners.length <= 1 || index === currentBannerIndex) return;
+        currentBannerIndex = index;
+        updateBannerSlider();
+        if (bannerInterval) { clearInterval(bannerInterval); startBannerSlider(); }
+    }
+
+    function updateBannerSlider() {
+        const slider = document.getElementById('bannerSlider');
+        const dots = document.querySelectorAll('.banner-dot');
+        if (!slider) return;
+        slider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+        dots.forEach((dot, index) => { dot.classList.toggle('active', index === currentBannerIndex); });
+    }
+
+    // ---------- FEATURE 2: MODIFIED renderGrid() WITH ADD TO CART BUTTON (unchanged layout) ----------
+    function renderGrid() {
+        const grid = document.getElementById('productGrid');
+        const loader = document.getElementById('loader');
+        const noResult = document.getElementById('noResult');
+        
+        Array.from(grid.children).forEach(child => {
+            if(child.classList.contains('card')) grid.removeChild(child);
+        });
+
+        loader.style.display = 'none';
+        
+        if(displayedProducts.length === 0) {
+            noResult.style.display = 'flex';
+            return;
+        }
+        noResult.style.display = 'none';
+
+        displayedProducts.forEach(p => {
+            let price = parseInt(p.price);
+            let pOffer = parseInt(p.offer) || 0;
+            let finalOffer = Math.max(globalOffer, pOffer);
+            let finalPrice = Math.floor(price - (price * finalOffer / 100));
+            
+            let img = (p.images && p.images.length > 0) ? p.images[0] : p.image;
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = (e) => {
+                if (e.target.closest('.add-to-cart-btn')) return;
+                window.location.href = `product.html?id=${p.id}`;
+            };
+            
+            card.innerHTML = `
+                <div class="image-container">
+                    <img src="${img}" class="card-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300x169/f1f3f6/666?text=No+Image';">
+                </div>
+                <div class="details">
+                    <div class="title">${p.title}</div>
+                    <div class="price-row">
+                        <span class="price">₹${finalPrice}</span>
+                        ${finalOffer > 0 ? `<span class="mrp">₹${price}</span><span class="off">${finalOffer}% off</span>` : ''}
+                    </div>
+                    <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${p.id}')">
+                        <i class="fas fa-cart-plus"></i>
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterCat(cat, btn=null) {
+        if(btn) {
+            document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        document.getElementById('sidebar').classList.remove('active');
+        document.querySelector('.overlay').classList.remove('active');
+        if(cat === 'All') displayedProducts = allProducts;
+        else displayedProducts = allProducts.filter(p => p.category === cat);
+        renderGrid();
+    }
+
+    function searchProducts(q) {
+        const term = q.toLowerCase();
+        
+        const bannerSection = document.querySelector('.banner-section');
+        if (bannerSection) {
+            if (term.trim().length > 0) {
+                bannerSection.style.display = 'none';
+            } else {
+                bannerSection.style.display = 'block';
+            }
+        }
+
+        displayedProducts = allProducts.filter(p => p.title.toLowerCase().includes(term));
+        renderGrid();
+    }
+
+    function renderCategories() {
+        const sidebarDiv = document.getElementById('sidebar-cats');
+        const topStripDiv = document.getElementById('top-cat-strip');
+        sidebarDiv.innerHTML = `<div class="menu-item" onclick="filterCat('All')"><i class="fas fa-th-large"></i> All Products</div>`;
+        topStripDiv.innerHTML = `<div class="cat-pill active" onclick="filterCat('All', this)">All</div>`;
+        categories.forEach(cat => {
+            sidebarDiv.innerHTML += `<div class="menu-item" onclick="filterCat('${cat}')"><i class="fas fa-tag"></i> ${cat}</div>`;
+            topStripDiv.innerHTML += `<div class="cat-pill" onclick="filterCat('${cat}', this)">${cat}</div>`;
+        });
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.querySelector('.overlay').classList.toggle('active');
+    }
+
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => { if(e.target.closest('.banner-slider-container')) touchStartX = e.changedTouches[0].screenX; });
+    document.addEventListener('touchend', e => { 
+        if(e.target.closest('.banner-slider-container')) {
+            touchEndX = e.changedTouches[0].screenX;
+            if(Math.abs(touchStartX - touchEndX) > 50) (touchStartX - touchEndX > 0) ? nextBanner() : prevBanner();
+        }
+    });
+</script>
+</body>
+</html>

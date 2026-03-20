@@ -13,6 +13,7 @@
         :root {
             --primary: #2874f0; 
             --orange: #fb641b; 
+            --whatsapp: #25D366; /* NEW: WhatsApp Official Color */
             --white: #ffffff;
             --grey: #878787;
             --light-grey: #f0f0f0;
@@ -180,7 +181,9 @@
         .btn-wishlist { background: white; color: var(--text-dark); border-top: 1px solid #e0e0e0; }
         .btn-wishlist.active i { color: #ff4444; animation: pulse 0.3s ease-in-out; }
         .btn-wishlist.active span { color: #ff4444; }
-        .btn-buy { background: var(--orange); color: white; }
+        
+        /* NEW WHATSAPP BUTTON THEME */
+        .btn-buy { background: var(--whatsapp); color: white; }
         .btn:active { transform: scale(0.98); }
 
         /* --- TOAST --- */
@@ -301,7 +304,7 @@
             <span id="wishlistBtnText">Wishlist</span>
         </button>
         <button class="btn btn-buy" id="buyBtn">
-            <i class="fas fa-bolt" style="margin-right:8px;"></i> Buy Now
+            <i class="fab fa-whatsapp" style="margin-right:8px; font-size: 20px;"></i> Buy via WhatsApp
         </button>
     </div>
 
@@ -322,6 +325,7 @@
     let currentProduct = null;
     let currentFinalPrice = 0;
     let globalOffer = 0;
+    let storeWhatsappNumber = ""; // NEW: Global variable for WhatsApp number
 
     // --- SCROLL LOGIC FOR BOTTOM NAV ---
     let lastScrollY = 0;
@@ -350,11 +354,13 @@
     async function loadProduct(pid) {
         const ts = new Date().getTime();
         try {
+            // Fetch Settings (including WhatsApp number)
             try {
                 const sRes = await fetch(`${BASE_URL}/settings.json?v=${ts}`);
                 if(sRes.ok) {
                     const s = await sRes.json();
                     if(s.wholeWebsiteOffer) globalOffer = parseInt(s.wholeWebsiteOffer);
+                    if(s.whatsappNumber) storeWhatsappNumber = s.whatsappNumber; // NEW: Fetch WhatsApp number
                 }
             } catch(e) {}
 
@@ -378,6 +384,24 @@
         }
     }
 
+    // --- NEW: WhatsApp Checkout Logic ---
+    function buyViaWhatsApp(productId, productTitle, productPrice) {
+        if (!storeWhatsappNumber) {
+            alert("Store contact is not available right now. Please try again later.");
+            return;
+        }
+        
+        // Get current URL
+        const productUrl = window.location.href; 
+        
+        // Create formatted message
+        const message = `Hello! I would like to order this product:\n\n📦 *Item:* ${productTitle}\n💰 *Price:* ₹${productPrice}\n🔗 *Link:* ${productUrl}`;
+        
+        // Open WhatsApp
+        const whatsappUrl = `https://wa.me/${storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+
     function renderUI(p) {
         let originalPrice = parseInt(p.price);
         let pOffer = parseInt(p.offer) || 0;
@@ -397,11 +421,10 @@
 
         if(p.description) document.getElementById('desc').innerText = p.description;
 
-        // BUY BUTTON
+        // NEW: BUY BUTTON LOGIC LINKED TO WHATSAPP
         const buyBtn = document.getElementById('buyBtn');
         buyBtn.onclick = () => {
-            if(p.buyLink) window.location.href = p.buyLink;
-            else showToast("⚠️ Buying link not available");
+            buyViaWhatsApp(p.id, p.title, currentFinalPrice);
         };
 
         // Slider
